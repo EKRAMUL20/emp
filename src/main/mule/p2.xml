@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="45881707-b591-4cfd-9d29-942439bf467f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="a77572f0-8f22-43d0-a158-6b7651d5e79a" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root@123" database="office" />
+	</db:config>
+	<flow name="p2Flow" doc:id="e30aee02-440d-4078-870f-d856b5b24bbc" >
+		<http:listener doc:name="Listener" doc:id="6338fa54-a7c7-446e-a497-1b46f951f723" config-ref="HTTP_Listener_config" path="/choicedemo"/>
+		<logger level="INFO" doc:name="Logger" doc:id="129e6c0c-3a9a-4ff2-988c-5efcc283d942" message="#[payload]"/>
+		<set-payload doc:name="Set Payload" doc:id="8d22f2c4-ad38-4e98-8c8b-972d00e490ba" value='1'/>
+		<logger level="INFO" doc:name="Logger" doc:id="f937f0df-728e-4273-9353-681edb219673" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="277850cd-00f9-4911-b816-7da50627e72c" >
+			<when expression='#[payload == "2"]'>
+				<db:delete doc:name="Delete" doc:id="84a59cc8-4e35-45b5-bf6c-0723fa978125" config-ref="Database_Config">
+					<db:sql ><![CDATA[delete from employees where id like "5%"]]></db:sql>
+				</db:delete>
+			</when>
+			<when expression='#[payload == "1"]'>
+				<db:insert doc:name="Insert" doc:id="a2852f1f-7f37-4ad3-97f2-d26f1a11ba95" config-ref="Database_Config">
+					<db:sql ><![CDATA[insert into employees value("512","gopi","haryana","17500","9881209080")]]></db:sql>
+				</db:insert>
+			</when>
+			<otherwise>
+				<db:update doc:name="Update" doc:id="2acdc2c1-0811-468f-a962-33776ea078f5" config-ref="Database_Config">
+					<db:sql ><![CDATA[update employees set ADDRESS = "faridabad" where id="511"]]></db:sql>
+				</db:update>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="341923dd-69f3-4991-af79-6e95a9961c2f" message="#[payload]"/>
+	</flow>
+</mule>
